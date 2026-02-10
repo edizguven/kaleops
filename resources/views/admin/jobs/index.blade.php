@@ -69,6 +69,12 @@
                                 <input type="checkbox" name="assign_tesviye" value="1" {{ old('assign_tesviye', true) ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
                                 <span class="font-medium text-gray-700">Tesviye</span>
                             </label>
+                            @if(\Illuminate\Support\Facades\Schema::hasColumn('jobs', 'assign_torna'))
+                            <label class="inline-flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="assign_torna" value="1" {{ old('assign_torna', true) ? 'checked' : '' }} class="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500">
+                                <span class="font-medium text-gray-700">Torna</span>
+                            </label>
+                            @endif
                         </div>
                         @error('assign_stations') <span class="text-red-500 text-sm font-bold block mt-1">{{ $message }}</span> @enderror
                     </div>

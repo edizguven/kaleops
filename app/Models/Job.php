@@ -13,11 +13,12 @@ class Job extends Model
     protected $fillable = [
         'job_no', 'title', 'quantity', 'image_path', 'pdf_path',
         'current_stage',
-        'assign_cam', 'assign_lazer', 'assign_cmm', 'assign_tesviye',
+        'assign_cam', 'assign_lazer', 'assign_cmm', 'assign_tesviye', 'assign_torna',
         'cam_minutes',
         'lazer_minutes',
         'cmm_minutes',
         'tesviye_minutes',
+        'torna_minutes',
         'planning_date',
         'packaging_type',
         'delivery_note_path',
@@ -30,6 +31,7 @@ class Job extends Model
         'assign_lazer' => 'boolean',
         'assign_cmm' => 'boolean',
         'assign_tesviye' => 'boolean',
+        'assign_torna' => 'boolean',
     ];
 
     /**
@@ -42,6 +44,7 @@ class Job extends Model
         if (($this->getAttribute('assign_lazer') ?? true) && $this->lazer_minutes === null) return false;
         if (($this->getAttribute('assign_cmm') ?? true) && $this->cmm_minutes === null) return false;
         if (($this->getAttribute('assign_tesviye') ?? true) && $this->tesviye_minutes === null) return false;
+        if (($this->getAttribute('assign_torna') ?? true) && $this->torna_minutes === null) return false;
         return true;
     }
 
@@ -50,7 +53,7 @@ class Job extends Model
      */
     public function getTotalMinutesAttribute()
     {
-        return ($this->cam_minutes ?? 0) + ($this->lazer_minutes ?? 0) + ($this->cmm_minutes ?? 0) + ($this->tesviye_minutes ?? 0);
+        return ($this->cam_minutes ?? 0) + ($this->lazer_minutes ?? 0) + ($this->cmm_minutes ?? 0) + ($this->tesviye_minutes ?? 0) + ($this->torna_minutes ?? 0);
     }
 
     /**
@@ -145,6 +148,14 @@ class Job extends Model
     public function jobFiles()
     {
         return $this->hasMany(JobFile::class);
+    }
+
+    /**
+     * İstasyon bazlı parça detayları (Parça No, En, Boy, Yükseklik, Adet, Cinsi)
+     */
+    public function jobStationDetails()
+    {
+        return $this->hasMany(JobStationDetail::class);
     }
 
     /**

@@ -71,15 +71,30 @@
                             <?php if(auth()->user()->role == 'cam'): ?>
                                 <form action="<?php echo e(route('operator.update', $job->id)); ?>" method="POST" class="bg-blue-50 p-6 rounded-xl border border-blue-100">
                                     <?php echo csrf_field(); ?>
-                                    <div class="flex flex-col md:flex-row items-end gap-4">
-                                        <div class="w-full">
-                                            <label class="block text-blue-900 font-bold text-sm mb-2 uppercase">CAM İşlem Süresi (Dakika)</label>
-                                            <input type="number" name="cam_minutes" required min="1" placeholder="Örn: 45" 
-                                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 text-lg">
+                                    <div class="space-y-4">
+                                        <div class="flex flex-col md:flex-row items-end gap-4">
+                                            <div class="w-full">
+                                                <label class="block text-blue-900 font-bold text-sm mb-2 uppercase">CAM İşlem Süresi (Dakika)</label>
+                                                <input type="number" name="cam_minutes" required min="1" placeholder="Örn: 45" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 text-lg">
+                                            </div>
+                                            <button type="submit" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105 whitespace-nowrap">KAYDET VE GÖNDER</button>
                                         </div>
-                                        <button type="submit" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105 whitespace-nowrap">
-                                            KAYDET VE GÖNDER
-                                        </button>
+                                        <div class="pt-2 border-t border-blue-200">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-sm font-bold text-blue-800">Parça bilgileri (birden fazla parça ekleyebilirsiniz)</span>
+                                                <button type="button" onclick="parcaEkle('parca-rows-cam')" class="px-3 py-1.5 bg-blue-600 text-white rounded text-sm font-bold hover:bg-blue-700">+ Parça Ekle</button>
+                                            </div>
+                                            <div id="parca-rows-cam" class="space-y-3">
+                                                <div class="parca-row grid grid-cols-2 md:grid-cols-6 gap-3">
+                                                    <div><label class="block text-xs font-bold text-blue-800 mb-1">Parça No</label><input type="text" name="parca_no[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Parça No"></div>
+                                                    <div><label class="block text-xs font-bold text-blue-800 mb-1">En</label><input type="text" name="en[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="En"></div>
+                                                    <div><label class="block text-xs font-bold text-blue-800 mb-1">Boy</label><input type="text" name="boy[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Boy"></div>
+                                                    <div><label class="block text-xs font-bold text-blue-800 mb-1">Yükseklik</label><input type="text" name="yukseklik[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Yükseklik"></div>
+                                                    <div><label class="block text-xs font-bold text-blue-800 mb-1">Adet</label><input type="number" name="adet[]" min="0" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Adet"></div>
+                                                    <div><label class="block text-xs font-bold text-blue-800 mb-1">Cinsi</label><input type="text" name="cinsi[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Cinsi"></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </form>
                             <?php endif; ?>
@@ -87,15 +102,30 @@
                             <?php if(auth()->user()->role == 'lazer'): ?>
                                 <form action="<?php echo e(route('operator.update', $job->id)); ?>" method="POST" class="bg-red-50 p-6 rounded-xl border border-red-100">
                                     <?php echo csrf_field(); ?>
-                                    <div class="flex flex-col md:flex-row items-end gap-4">
-                                        <div class="w-full">
-                                            <label class="block text-red-900 font-bold text-sm mb-2 uppercase">Lazer İşlem Süresi (Dakika)</label>
-                                            <input type="number" name="lazer_minutes" required min="1" placeholder="Örn: 50" 
-                                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 py-3 text-lg">
+                                    <div class="space-y-4">
+                                        <div class="flex flex-col md:flex-row items-end gap-4">
+                                            <div class="w-full">
+                                                <label class="block text-red-900 font-bold text-sm mb-2 uppercase">Lazer İşlem Süresi (Dakika)</label>
+                                                <input type="number" name="lazer_minutes" required min="1" placeholder="Örn: 50" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 py-3 text-lg">
+                                            </div>
+                                            <button type="submit" class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105 whitespace-nowrap">KAYDET VE GÖNDER</button>
                                         </div>
-                                        <button type="submit" class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105 whitespace-nowrap">
-                                            KAYDET VE GÖNDER
-                                        </button>
+                                        <div class="pt-2 border-t border-red-200">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-sm font-bold text-red-800">Parça bilgileri (birden fazla parça ekleyebilirsiniz)</span>
+                                                <button type="button" onclick="parcaEkle('parca-rows-lazer')" class="px-3 py-1.5 bg-red-600 text-white rounded text-sm font-bold hover:bg-red-700">+ Parça Ekle</button>
+                                            </div>
+                                            <div id="parca-rows-lazer" class="space-y-3">
+                                                <div class="parca-row grid grid-cols-2 md:grid-cols-6 gap-3">
+                                                    <div><label class="block text-xs font-bold text-red-800 mb-1">Parça No</label><input type="text" name="parca_no[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Parça No"></div>
+                                                    <div><label class="block text-xs font-bold text-red-800 mb-1">En</label><input type="text" name="en[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="En"></div>
+                                                    <div><label class="block text-xs font-bold text-red-800 mb-1">Boy</label><input type="text" name="boy[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Boy"></div>
+                                                    <div><label class="block text-xs font-bold text-red-800 mb-1">Yükseklik</label><input type="text" name="yukseklik[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Yükseklik"></div>
+                                                    <div><label class="block text-xs font-bold text-red-800 mb-1">Adet</label><input type="number" name="adet[]" min="0" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Adet"></div>
+                                                    <div><label class="block text-xs font-bold text-red-800 mb-1">Cinsi</label><input type="text" name="cinsi[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Cinsi"></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </form>
                             <?php endif; ?>
@@ -103,15 +133,30 @@
                             <?php if(auth()->user()->role == 'cmm'): ?>
                                 <form action="<?php echo e(route('operator.update', $job->id)); ?>" method="POST" class="bg-purple-50 p-6 rounded-xl border border-purple-100">
                                     <?php echo csrf_field(); ?>
-                                    <div class="flex flex-col md:flex-row items-end gap-4">
-                                        <div class="w-full">
-                                            <label class="block text-purple-900 font-bold text-sm mb-2 uppercase">CMM İşlem Süresi (Dakika)</label>
-                                            <input type="number" name="cmm_minutes" required min="1" placeholder="Örn: 30" 
-                                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 py-3 text-lg">
+                                    <div class="space-y-4">
+                                        <div class="flex flex-col md:flex-row items-end gap-4">
+                                            <div class="w-full">
+                                                <label class="block text-purple-900 font-bold text-sm mb-2 uppercase">CMM İşlem Süresi (Dakika)</label>
+                                                <input type="number" name="cmm_minutes" required min="1" placeholder="Örn: 30" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 py-3 text-lg">
+                                            </div>
+                                            <button type="submit" class="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105 whitespace-nowrap">KAYDET VE GÖNDER</button>
                                         </div>
-                                        <button type="submit" class="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105 whitespace-nowrap">
-                                            KAYDET VE GÖNDER
-                                        </button>
+                                        <div class="pt-2 border-t border-purple-200">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-sm font-bold text-purple-800">Parça bilgileri (birden fazla parça ekleyebilirsiniz)</span>
+                                                <button type="button" onclick="parcaEkle('parca-rows-cmm')" class="px-3 py-1.5 bg-purple-600 text-white rounded text-sm font-bold hover:bg-purple-700">+ Parça Ekle</button>
+                                            </div>
+                                            <div id="parca-rows-cmm" class="space-y-3">
+                                                <div class="parca-row grid grid-cols-2 md:grid-cols-6 gap-3">
+                                                    <div><label class="block text-xs font-bold text-purple-800 mb-1">Parça No</label><input type="text" name="parca_no[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Parça No"></div>
+                                                    <div><label class="block text-xs font-bold text-purple-800 mb-1">En</label><input type="text" name="en[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="En"></div>
+                                                    <div><label class="block text-xs font-bold text-purple-800 mb-1">Boy</label><input type="text" name="boy[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Boy"></div>
+                                                    <div><label class="block text-xs font-bold text-purple-800 mb-1">Yükseklik</label><input type="text" name="yukseklik[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Yükseklik"></div>
+                                                    <div><label class="block text-xs font-bold text-purple-800 mb-1">Adet</label><input type="number" name="adet[]" min="0" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Adet"></div>
+                                                    <div><label class="block text-xs font-bold text-purple-800 mb-1">Cinsi</label><input type="text" name="cinsi[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Cinsi"></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </form>
                             <?php endif; ?>
@@ -119,27 +164,73 @@
                             <?php if(auth()->user()->role == 'tesviye'): ?>
                                 <form action="<?php echo e(route('operator.update', $job->id)); ?>" method="POST" class="bg-orange-50 p-6 rounded-xl border border-orange-100">
                                     <?php echo csrf_field(); ?>
-                                    <div class="flex flex-col md:flex-row items-end gap-4">
-                                        <div class="w-full">
-                                            <label class="block text-orange-900 font-bold text-sm mb-2 uppercase">Tesviye İşlem Süresi (Dakika)</label>
-                                            <input type="number" name="tesviye_minutes" required min="1" placeholder="Örn: 60" 
-                                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-3 text-lg">
+                                    <div class="space-y-4">
+                                        <div class="flex flex-col md:flex-row items-end gap-4">
+                                            <div class="w-full">
+                                                <label class="block text-orange-900 font-bold text-sm mb-2 uppercase">Tesviye İşlem Süresi (Dakika)</label>
+                                                <input type="number" name="tesviye_minutes" required min="1" placeholder="Örn: 60" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-3 text-lg">
+                                            </div>
+                                            <button type="submit" class="w-full md:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105 whitespace-nowrap">KAYDET VE GÖNDER</button>
                                         </div>
-                                        <button type="submit" class="w-full md:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105 whitespace-nowrap">
-                                            KAYDET VE GÖNDER
-                                        </button>
+                                        <div class="pt-2 border-t border-orange-200">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-sm font-bold text-orange-800">Parça bilgileri (birden fazla parça ekleyebilirsiniz)</span>
+                                                <button type="button" onclick="parcaEkle('parca-rows-tesviye')" class="px-3 py-1.5 bg-orange-600 text-white rounded text-sm font-bold hover:bg-orange-700">+ Parça Ekle</button>
+                                            </div>
+                                            <div id="parca-rows-tesviye" class="space-y-3">
+                                                <div class="parca-row grid grid-cols-2 md:grid-cols-6 gap-3">
+                                                    <div><label class="block text-xs font-bold text-orange-800 mb-1">Parça No</label><input type="text" name="parca_no[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Parça No"></div>
+                                                    <div><label class="block text-xs font-bold text-orange-800 mb-1">En</label><input type="text" name="en[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="En"></div>
+                                                    <div><label class="block text-xs font-bold text-orange-800 mb-1">Boy</label><input type="text" name="boy[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Boy"></div>
+                                                    <div><label class="block text-xs font-bold text-orange-800 mb-1">Yükseklik</label><input type="text" name="yukseklik[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Yükseklik"></div>
+                                                    <div><label class="block text-xs font-bold text-orange-800 mb-1">Adet</label><input type="number" name="adet[]" min="0" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Adet"></div>
+                                                    <div><label class="block text-xs font-bold text-orange-800 mb-1">Cinsi</label><input type="text" name="cinsi[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Cinsi"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            <?php endif; ?>
+
+                            <?php if(auth()->user()->role == 'torna'): ?>
+                                <form action="<?php echo e(route('operator.update', $job->id)); ?>" method="POST" class="bg-cyan-50 p-6 rounded-xl border border-cyan-100">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="space-y-4">
+                                        <div class="flex flex-col md:flex-row items-end gap-4">
+                                            <div class="w-full">
+                                                <label class="block text-cyan-900 font-bold text-sm mb-2 uppercase">Torna İşlem Süresi (Dakika)</label>
+                                                <input type="number" name="torna_minutes" required min="1" placeholder="Örn: 40" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 py-3 text-lg">
+                                            </div>
+                                            <button type="submit" class="w-full md:w-auto bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105 whitespace-nowrap">KAYDET VE GÖNDER</button>
+                                        </div>
+                                        <div class="pt-2 border-t border-cyan-200">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-sm font-bold text-cyan-800">Parça bilgileri (birden fazla parça ekleyebilirsiniz)</span>
+                                                <button type="button" onclick="parcaEkleTorna('parca-rows-torna')" class="px-3 py-1.5 bg-cyan-600 text-white rounded text-sm font-bold hover:bg-cyan-700">+ Parça Ekle</button>
+                                            </div>
+                                            <div id="parca-rows-torna" class="space-y-3">
+                                                <div class="parca-row parca-row-torna grid grid-cols-2 md:grid-cols-5 gap-3">
+                                                    <div><label class="block text-xs font-bold text-cyan-800 mb-1">Parça No</label><input type="text" name="parca_no[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Parça No"></div>
+                                                    <div><label class="block text-xs font-bold text-cyan-800 mb-1">En</label><input type="text" name="en[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="En"></div>
+                                                    <div><label class="block text-xs font-bold text-cyan-800 mb-1">Boy</label><input type="text" name="boy[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Boy"></div>
+                                                    <div><label class="block text-xs font-bold text-cyan-800 mb-1">Adet</label><input type="number" name="adet[]" min="0" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Adet"></div>
+                                                    <div><label class="block text-xs font-bold text-cyan-800 mb-1">Cinsi</label><input type="text" name="cinsi[]" class="w-full rounded border-gray-300 text-sm py-2" placeholder="Cinsi"></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </form>
                             <?php endif; ?>
 
                             <?php if(auth()->user()->role == 'planning'): ?>
                                 <div class="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                                    <h4 class="text-sm font-bold text-gray-600 uppercase mb-3">İstasyon süreleri (CAM, Lazer, CMM, Tesviye)</h4>
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                    <h4 class="text-sm font-bold text-gray-600 uppercase mb-3">İstasyon süreleri</h4>
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
                                         <div><span class="text-gray-500">CAM:</span> <span class="font-bold"><?php echo e($job->cam_minutes ?? '--'); ?> dk</span></div>
                                         <div><span class="text-gray-500">Lazer:</span> <span class="font-bold"><?php echo e($job->lazer_minutes ?? '--'); ?> dk</span></div>
                                         <div><span class="text-gray-500">CMM:</span> <span class="font-bold"><?php echo e($job->cmm_minutes ?? '--'); ?> dk</span></div>
                                         <div><span class="text-gray-500">Tesviye:</span> <span class="font-bold"><?php echo e($job->tesviye_minutes ?? '--'); ?> dk</span></div>
+                                        <div><span class="text-gray-500">Torna:</span> <span class="font-bold"><?php echo e($job->torna_minutes ?? '--'); ?> dk</span></div>
                                     </div>
                                     <p class="text-xs text-gray-400 mt-2">Toplam: <?php echo e($job->total_minutes); ?> dk</p>
                                 </div>
@@ -265,6 +356,27 @@
 
         </div>
     </div>
+
+    <script>
+    function parcaEkle(containerId) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var first = container.querySelector('.parca-row:not(.parca-row-torna)');
+        if (!first) return;
+        var clone = first.cloneNode(true);
+        clone.querySelectorAll('input').forEach(function(i) { i.value = ''; });
+        container.appendChild(clone);
+    }
+    function parcaEkleTorna(containerId) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var first = container.querySelector('.parca-row-torna');
+        if (!first) return;
+        var clone = first.cloneNode(true);
+        clone.querySelectorAll('input').forEach(function(i) { i.value = ''; });
+        container.appendChild(clone);
+    }
+    </script>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>

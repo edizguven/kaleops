@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Job;
+use App\Models\JobStationDetail;
 
 class OperatorController extends Controller
 {
@@ -21,7 +22,7 @@ class OperatorController extends Controller
             return redirect()->route('admin.jobs.index');
         }
 
-        if (empty($user->role) || !in_array($user->role, ['cam', 'lazer', 'cmm', 'tesviye', 'planning', 'packaging', 'logistics', 'accounting'])) {
+        if (empty($user->role) || !in_array($user->role, ['cam', 'lazer', 'cmm', 'tesviye', 'torna', 'planning', 'packaging', 'logistics', 'accounting'])) {
             return redirect()->route('dashboard')->with('error', 'Geçerli bir operatör rolünüz bulunmamaktadır.');
         }
 
@@ -57,6 +58,13 @@ class OperatorController extends Controller
                     $query->whereNull('tesviye_minutes');
                 }
                 break;
+            case 'torna':
+                if (Schema::hasColumn('jobs', 'assign_torna')) {
+                    $query->where('assign_torna', true)->whereNull('torna_minutes');
+                } else {
+                    $query->whereNull('torna_minutes');
+                }
+                break;
             case 'planning':
                 if ($hasAssignColumns) {
                     $query->whereNull('planning_date')
@@ -72,12 +80,22 @@ class OperatorController extends Controller
                         ->where(function ($q) {
                             $q->where('assign_tesviye', false)->orWhereNotNull('tesviye_minutes');
                         });
+                    if (Schema::hasColumn('jobs', 'assign_torna')) {
+                        $query->where(function ($q) {
+                            $q->where('assign_torna', false)->orWhereNotNull('torna_minutes');
+                        });
+                    } else {
+                        $query->whereNotNull('torna_minutes');
+                    }
                 } else {
                     $query->whereNotNull('cam_minutes')
                         ->whereNotNull('lazer_minutes')
                         ->whereNotNull('cmm_minutes')
-                        ->whereNotNull('tesviye_minutes')
-                        ->whereNull('planning_date');
+                        ->whereNotNull('tesviye_minutes');
+                    if (Schema::hasColumn('jobs', 'torna_minutes')) {
+                        $query->whereNotNull('torna_minutes');
+                    }
+                    $query->whereNull('planning_date');
                 }
                 break;
             case 'packaging':
@@ -120,6 +138,7 @@ class OperatorController extends Controller
             'lazer' => ($job->getAttribute('assign_lazer') ?? true) && is_null($job->lazer_minutes),
             'cmm' => ($job->getAttribute('assign_cmm') ?? true) && is_null($job->cmm_minutes),
             'tesviye' => ($job->getAttribute('assign_tesviye') ?? true) && is_null($job->tesviye_minutes),
+            'torna' => ($job->getAttribute('assign_torna') ?? true) && is_null($job->torna_minutes),
             'planning' => is_null($job->planning_date) && $job->hasAllAssignedProductionStationsFilled(),
             'packaging' => is_null($job->packaging_type) && $job->planning_date !== null,
             'logistics' => is_null($job->delivery_note_path) && $job->packaging_type !== null,
@@ -130,32 +149,112 @@ class OperatorController extends Controller
             return back()->with('error', 'Bu iş için sizin istasyon veriniz zaten girilmiş veya sıra sizde değil.');
         }
 
-        // 1. CAM
+        // 1. CAM (çoklu parça)
         if ($user->role === 'cam') {
-            $request->validate(['cam_minutes' => 'required|integer|min:1']);
+            $request->validate([
+                'cam_minutes' => 'required|integer|min:1',
+                'parca_no' => 'nullable|array',
+                'parca_no.*' => 'nullable|string|max:255',
+                'en' => 'nullable|array',
+                'en.*' => 'nullable|string|max:100',
+                'boy' => 'nullable|array',
+                'boy.*' => 'nullable|string|max:100',
+                'yukseklik' => 'nullable|array',
+                'yukseklik.*' => 'nullable|string|max:100',
+                'adet' => 'nullable|array',
+                'adet.*' => 'nullable|integer|min:0',
+                'cinsi' => 'nullable|array',
+                'cinsi.*' => 'nullable|string|max:255',
+            ]);
             $job->update(['cam_minutes' => $request->cam_minutes]);
-            return back()->with('success', 'CAM süresi kaydedildi.');
+            $this->saveStationDetailsMultiple($job, 'cam', $request, true);
+            return back()->with('success', 'CAM süresi ve parça bilgileri kaydedildi.');
         }
 
-        // 2. LAZER
+        // 2. LAZER (çoklu parça)
         if ($user->role === 'lazer') {
-            $request->validate(['lazer_minutes' => 'required|integer|min:1']);
+            $request->validate([
+                'lazer_minutes' => 'required|integer|min:1',
+                'parca_no' => 'nullable|array',
+                'parca_no.*' => 'nullable|string|max:255',
+                'en' => 'nullable|array',
+                'en.*' => 'nullable|string|max:100',
+                'boy' => 'nullable|array',
+                'boy.*' => 'nullable|string|max:100',
+                'yukseklik' => 'nullable|array',
+                'yukseklik.*' => 'nullable|string|max:100',
+                'adet' => 'nullable|array',
+                'adet.*' => 'nullable|integer|min:0',
+                'cinsi' => 'nullable|array',
+                'cinsi.*' => 'nullable|string|max:255',
+            ]);
             $job->update(['lazer_minutes' => $request->lazer_minutes]);
-            return back()->with('success', 'Lazer süresi kaydedildi.');
+            $this->saveStationDetailsMultiple($job, 'lazer', $request, true);
+            return back()->with('success', 'Lazer süresi ve parça bilgileri kaydedildi.');
         }
 
-        // 3. CMM
+        // 3. CMM (çoklu parça)
         if ($user->role === 'cmm') {
-            $request->validate(['cmm_minutes' => 'required|integer|min:1']);
+            $request->validate([
+                'cmm_minutes' => 'required|integer|min:1',
+                'parca_no' => 'nullable|array',
+                'parca_no.*' => 'nullable|string|max:255',
+                'en' => 'nullable|array',
+                'en.*' => 'nullable|string|max:100',
+                'boy' => 'nullable|array',
+                'boy.*' => 'nullable|string|max:100',
+                'yukseklik' => 'nullable|array',
+                'yukseklik.*' => 'nullable|string|max:100',
+                'adet' => 'nullable|array',
+                'adet.*' => 'nullable|integer|min:0',
+                'cinsi' => 'nullable|array',
+                'cinsi.*' => 'nullable|string|max:255',
+            ]);
             $job->update(['cmm_minutes' => $request->cmm_minutes]);
-            return back()->with('success', 'CMM süresi kaydedildi.');
+            $this->saveStationDetailsMultiple($job, 'cmm', $request, true);
+            return back()->with('success', 'CMM süresi ve parça bilgileri kaydedildi.');
         }
 
-        // 4. TESVİYE
+        // 4. TESVİYE (çoklu parça)
         if ($user->role === 'tesviye') {
-            $request->validate(['tesviye_minutes' => 'required|integer|min:1']);
+            $request->validate([
+                'tesviye_minutes' => 'required|integer|min:1',
+                'parca_no' => 'nullable|array',
+                'parca_no.*' => 'nullable|string|max:255',
+                'en' => 'nullable|array',
+                'en.*' => 'nullable|string|max:100',
+                'boy' => 'nullable|array',
+                'boy.*' => 'nullable|string|max:100',
+                'yukseklik' => 'nullable|array',
+                'yukseklik.*' => 'nullable|string|max:100',
+                'adet' => 'nullable|array',
+                'adet.*' => 'nullable|integer|min:0',
+                'cinsi' => 'nullable|array',
+                'cinsi.*' => 'nullable|string|max:255',
+            ]);
             $job->update(['tesviye_minutes' => $request->tesviye_minutes]);
-            return back()->with('success', 'Tesviye süresi kaydedildi.');
+            $this->saveStationDetailsMultiple($job, 'tesviye', $request, true);
+            return back()->with('success', 'Tesviye süresi ve parça bilgileri kaydedildi.');
+        }
+
+        // 4b. TORNA (çoklu parça, Yükseklik yok)
+        if ($user->role === 'torna') {
+            $request->validate([
+                'torna_minutes' => 'required|integer|min:1',
+                'parca_no' => 'nullable|array',
+                'parca_no.*' => 'nullable|string|max:255',
+                'en' => 'nullable|array',
+                'en.*' => 'nullable|string|max:100',
+                'boy' => 'nullable|array',
+                'boy.*' => 'nullable|string|max:100',
+                'adet' => 'nullable|array',
+                'adet.*' => 'nullable|integer|min:0',
+                'cinsi' => 'nullable|array',
+                'cinsi.*' => 'nullable|string|max:255',
+            ]);
+            $job->update(['torna_minutes' => $request->torna_minutes]);
+            $this->saveStationDetailsMultiple($job, 'torna', $request, false);
+            return back()->with('success', 'Torna süresi ve parça bilgileri kaydedildi.');
         }
 
         // 5. PLANLAMA (Planning): Tarih + opsiyonel iş günü (eklenecek gün sayısı)
@@ -224,5 +323,63 @@ class OperatorController extends Controller
         }
 
         return back()->with('error', 'İşlem tanımlanamadı.');
+    }
+
+    /**
+     * İstasyon parça detaylarını çoklu satır olarak kaydet (Parça No, En, Boy, Yükseklik, Adet, Cinsi)
+     * @param bool $includeYukseklik Torna için false
+     */
+    private function saveStationDetailsMultiple(Job $job, string $station, Request $request, bool $includeYukseklik = true): void
+    {
+        JobStationDetail::where('job_id', $job->id)->where('station', $station)->delete();
+
+        $parcaNo = $request->input('parca_no', []);
+        if (!is_array($parcaNo)) {
+            $parcaNo = $parcaNo ? [$parcaNo] : [];
+        }
+        $en = $request->input('en', []);
+        $boy = $request->input('boy', []);
+        $yukseklik = $request->input('yukseklik', []);
+        $adet = $request->input('adet', []);
+        $cinsi = $request->input('cinsi', []);
+
+        if (!is_array($en)) { $en = $en ? [$en] : []; }
+        if (!is_array($boy)) { $boy = $boy ? [$boy] : []; }
+        if (!is_array($yukseklik)) { $yukseklik = $yukseklik ? [$yukseklik] : []; }
+        if (!is_array($adet)) { $adet = $adet !== '' && $adet !== null ? [$adet] : []; }
+        if (!is_array($cinsi)) { $cinsi = $cinsi ? [$cinsi] : []; }
+
+        $max = max(
+            count($parcaNo),
+            count($en),
+            count($boy),
+            count($yukseklik),
+            count($adet),
+            count($cinsi),
+            1
+        );
+
+        for ($i = 0; $i < $max; $i++) {
+            $pn = trim($parcaNo[$i] ?? '');
+            $e = trim($en[$i] ?? '');
+            $b = trim($boy[$i] ?? '');
+            $y = trim($yukseklik[$i] ?? '');
+            $a = isset($adet[$i]) && $adet[$i] !== '' ? (int) $adet[$i] : null;
+            $c = trim($cinsi[$i] ?? '');
+            if ($pn === '' && $e === '' && $b === '' && $y === '' && $a === null && $c === '') {
+                continue;
+            }
+            $payload = [
+                'job_id' => $job->id,
+                'station' => $station,
+                'parca_no' => $pn ?: null,
+                'en' => $e ?: null,
+                'boy' => $b ?: null,
+                'adet' => $a,
+                'cinsi' => $c ?: null,
+            ];
+            $payload['yukseklik'] = $includeYukseklik ? ($y ?: null) : null;
+            JobStationDetail::create($payload);
+        }
     }
 }

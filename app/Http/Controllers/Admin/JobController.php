@@ -34,12 +34,15 @@ class JobController extends Controller
         ]);
 
         $hasAssignColumns = Schema::hasColumn('jobs', 'assign_cam');
+        $hasTorna = Schema::hasColumn('jobs', 'assign_torna');
         $assignCam = $request->boolean('assign_cam');
         $assignLazer = $request->boolean('assign_lazer');
         $assignCmm = $request->boolean('assign_cmm');
         $assignTesviye = $request->boolean('assign_tesviye');
-        if ($hasAssignColumns && !$assignCam && !$assignLazer && !$assignCmm && !$assignTesviye) {
-            return back()->withErrors(['assign_stations' => 'En az bir istasyon seçmelisiniz (CAM, Lazer, CMM veya Tesviye).'])->withInput();
+        $assignTorna = $request->boolean('assign_torna');
+        $anyStation = $assignCam || $assignLazer || $assignCmm || $assignTesviye || ($hasTorna && $assignTorna);
+        if ($hasAssignColumns && !$anyStation) {
+            return back()->withErrors(['assign_stations' => 'En az bir istasyon seçmelisiniz (CAM, Lazer, CMM, Tesviye veya Torna).'])->withInput();
         }
 
         $teknikDosya = $request->file('teknik_dosya') ?? [];
@@ -68,6 +71,9 @@ class JobController extends Controller
                 $createData['assign_cmm'] = $assignCmm;
                 $createData['assign_tesviye'] = $assignTesviye;
             }
+            if ($hasTorna) {
+                $createData['assign_torna'] = $assignTorna;
+            }
             $job = Job::create($createData);
 
             foreach ($allFiles as $file) {
@@ -89,7 +95,7 @@ class JobController extends Controller
 
     public function show(Job $job)
     {
-        $job->load('jobFiles');
+        $job->load(['jobFiles', 'jobStationDetails']);
         return view('admin.jobs.show', compact('job'));
     }
 

@@ -43,6 +43,21 @@ Route::get('/__create_admin', function () {
     return 'Admin user created/updated. Login: admin@firma.com / password';
 });
 
+Route::get('/__create_torna', function () {
+    if (!app()->environment('local')) {
+        abort(404);
+    }
+    User::updateOrCreate(
+        ['email' => 'torna@firma.com'],
+        [
+            'name' => 'Torna',
+            'password' => 'password',
+            'role' => 'torna',
+        ]
+    );
+    return 'Torna user created/updated. Login: torna@firma.com / password';
+});
+
 /*
 |--------------------------------------------------------------------------
 | Standart Dashboard
@@ -54,7 +69,7 @@ Route::get('/dashboard', function () {
     if (in_array($user->role ?? '', ['admin', 'manager'])) {
         return redirect()->route('admin.jobs.index');
     }
-    if (in_array($user->role ?? '', ['cam', 'lazer', 'cmm', 'tesviye', 'planning', 'packaging', 'logistics', 'accounting'])) {
+    if (in_array($user->role ?? '', ['cam', 'lazer', 'cmm', 'tesviye', 'torna', 'planning', 'packaging', 'logistics', 'accounting'])) {
         return redirect()->route('operator.index');
     }
     return view('dashboard');

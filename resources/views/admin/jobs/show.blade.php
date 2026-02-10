@@ -84,6 +84,10 @@
                             <span class="text-gray-600">Tesviye:</span>
                             <span class="font-bold">{{ $job->tesviye_minutes ?? '--' }} dk</span>
                         </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Torna:</span>
+                            <span class="font-bold">{{ $job->torna_minutes ?? '--' }} dk</span>
+                        </li>
                         <li class="border-t pt-2 flex justify-between text-indigo-700">
                             <span class="font-bold">Toplam Süre:</span>
                             <span class="font-bold">
@@ -148,6 +152,41 @@
                     </ul>
                 </div>
             </div>
+
+            @if($job->jobStationDetails && $job->jobStationDetails->isNotEmpty())
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-amber-400">
+                <h4 class="font-bold text-gray-700 border-b pb-2 mb-4">📋 İstasyon Parça Detayları</h4>
+                <p class="text-sm text-gray-500 mb-4">Operatörlerin girdiği parça bilgileri (Parça No, En, Boy, Yükseklik, Adet, Cinsi)</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase">
+                                <th class="p-3">İstasyon</th>
+                                <th class="p-3">Parça No</th>
+                                <th class="p-3">En</th>
+                                <th class="p-3">Boy</th>
+                                <th class="p-3">Yükseklik</th>
+                                <th class="p-3">Adet</th>
+                                <th class="p-3">Cinsi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($job->jobStationDetails as $d)
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="p-3 font-bold">{{ \App\Models\JobStationDetail::stationLabel($d->station) }}</td>
+                                <td class="p-3">{{ $d->parca_no ?? '--' }}</td>
+                                <td class="p-3">{{ $d->en ?? '--' }}</td>
+                                <td class="p-3">{{ $d->boy ?? '--' }}</td>
+                                <td class="p-3">{{ $d->station === 'torna' ? '--' : ($d->yukseklik ?? '--') }}</td>
+                                <td class="p-3">{{ $d->adet ?? '--' }}</td>
+                                <td class="p-3">{{ $d->cinsi ?? '--' }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
 
             <!-- Üretim Maliyetleri -->
             <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">

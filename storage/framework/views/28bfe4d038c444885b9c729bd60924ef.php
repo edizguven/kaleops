@@ -94,6 +94,12 @@ unset($__errorArgs, $__bag); ?>
                                 <input type="checkbox" name="assign_tesviye" value="1" <?php echo e(old('assign_tesviye', true) ? 'checked' : ''); ?> class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
                                 <span class="font-medium text-gray-700">Tesviye</span>
                             </label>
+                            <?php if(\Illuminate\Support\Facades\Schema::hasColumn('jobs', 'assign_torna')): ?>
+                            <label class="inline-flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="assign_torna" value="1" <?php echo e(old('assign_torna', true) ? 'checked' : ''); ?> class="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500">
+                                <span class="font-medium text-gray-700">Torna</span>
+                            </label>
+                            <?php endif; ?>
                         </div>
                         <?php $__errorArgs = ['assign_stations'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
