@@ -138,7 +138,17 @@
             </div>
 
             <div class="bg-white shadow-lg rounded-xl overflow-hidden p-6">
-                <h3 class="font-bold text-gray-700 mb-4 border-b pb-2">Mevcut İşler Listesi ({{ count($jobs) }})</h3>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 border-b pb-4">
+                    <h3 class="font-bold text-gray-700">Mevcut İşler Listesi ({{ count($jobs) }})</h3>
+                    <form action="{{ route('admin.jobs.index') }}" method="get" class="flex items-center gap-2 flex-1 sm:max-w-md">
+                        <input type="search" name="q" value="{{ request('q') }}" placeholder="İş No veya Başlık ile ara..." 
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                        <button type="submit" class="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm transition">Ara</button>
+                        @if(request('q'))
+                            <a href="{{ route('admin.jobs.index') }}" class="shrink-0 px-3 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium">Temizle</a>
+                        @endif
+                    </form>
+                </div>
                 <table class="w-full text-left">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 text-sm uppercase">

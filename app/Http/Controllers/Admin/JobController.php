@@ -12,9 +12,19 @@ use Illuminate\Support\Facades\Schema;
 
 class JobController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $jobs = Job::with('jobFiles')->latest()->get();
+        $query = Job::with('jobFiles')->latest();
+
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($qry) use ($q) {
+                $qry->where('job_no', 'like', '%' . $q . '%')
+                    ->orWhere('title', 'like', '%' . $q . '%');
+            });
+        }
+
+        $jobs = $query->get();
         $showAssignStations = Schema::hasColumn('jobs', 'assign_cam');
         return view('admin.jobs.index', compact('jobs', 'showAssignStations'));
     }
