@@ -139,15 +139,31 @@
 
             <div class="bg-white shadow-lg rounded-xl overflow-hidden p-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 border-b pb-4">
-                    <h3 class="font-bold text-gray-700">Mevcut İşler Listesi ({{ count($jobs) }})</h3>
-                    <form action="{{ route('admin.jobs.index') }}" method="get" class="flex items-center gap-2 flex-1 sm:max-w-md">
-                        <input type="search" name="q" value="{{ request('q') }}" placeholder="İş No veya Başlık ile ara..." 
-                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                        <button type="submit" class="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm transition">Ara</button>
+                    <h3 class="font-bold text-gray-700">Mevcut İşler Listesi (toplam {{ $jobs->total() }} kayıt)</h3>
+                    <div class="flex flex-wrap items-center gap-3 flex-1 sm:justify-end">
+                        <form action="{{ route('admin.jobs.index') }}" method="get" class="flex items-center gap-2 flex-1 sm:max-w-xs">
+                            @if(request('per_page'))
+                                <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                            @endif
+                            <input type="search" name="q" value="{{ request('q') }}" placeholder="İş No veya Başlık ile ara..." 
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <button type="submit" class="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm transition">Ara</button>
+                        </form>
                         @if(request('q'))
-                            <a href="{{ route('admin.jobs.index') }}" class="shrink-0 px-3 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium">Temizle</a>
+                            <a href="{{ route('admin.jobs.index', ['per_page' => request('per_page', 25)]) }}" class="shrink-0 px-3 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium">Arama temizle</a>
                         @endif
-                    </form>
+                        <form action="{{ route('admin.jobs.index') }}" method="get" class="flex items-center gap-2" id="per-page-form">
+                            @if(request('q'))
+                                <input type="hidden" name="q" value="{{ request('q') }}">
+                            @endif
+                            <label for="per_page" class="text-sm font-medium text-gray-700 whitespace-nowrap">Sayfa başına:</label>
+                            <select name="per_page" id="per_page" class="rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" onchange="this.form.submit()">
+                                <option value="25" {{ request('per_page', 25) == 25 ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                            </select>
+                        </form>
+                    </div>
                 </div>
                 <table class="w-full text-left">
                     <thead>
@@ -186,11 +202,21 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="p-8 text-center text-gray-500 bg-gray-50 rounded italic">Henüz aktif bir iş emri bulunmuyor.</td>
+                                <td colspan="6" class="p-8 text-center text-gray-500 bg-gray-50 rounded italic">Henüz aktif bir iş emri bulunmuyor.{{ request('q') ? ' Arama kriterine uygun kayıt yok.' : '' }}</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+                @if($jobs->hasPages())
+                    <div class="mt-6 pt-4 border-t border-gray-200 flex flex-wrap items-center justify-between gap-4">
+                        <p class="text-sm text-gray-600">
+                            {{ $jobs->firstItem() ?? 0 }} - {{ $jobs->lastItem() ?? 0 }} / {{ $jobs->total() }} kayıt
+                        </p>
+                        <div class="flex flex-wrap justify-end">
+                            {{ $jobs->withQueryString()->links() }}
+                        </div>
+                    </div>
+                @endif
             </div>
 
         </div>

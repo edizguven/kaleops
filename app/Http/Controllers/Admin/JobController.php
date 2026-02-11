@@ -24,7 +24,12 @@ class JobController extends Controller
             });
         }
 
-        $jobs = $query->get();
+        $perPage = (int) $request->input('per_page', 25);
+        if (!in_array($perPage, [25, 50, 100], true)) {
+            $perPage = 25;
+        }
+
+        $jobs = $query->paginate($perPage)->withQueryString();
         $showAssignStations = Schema::hasColumn('jobs', 'assign_cam');
         return view('admin.jobs.index', compact('jobs', 'showAssignStations'));
     }

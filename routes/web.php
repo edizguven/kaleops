@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\OperatorController;
 use App\Models\User;
 
@@ -110,6 +111,9 @@ Route::middleware(['auth', AdminMiddleware::class])
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::put('/users/{user}/password', [UserController::class, 'updatePassword'])->name('users.updatePassword');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+        // 5. Oturumlar / Son aktivite
+        Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');
     });
 
 /*

@@ -24,6 +24,9 @@
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                             {{ __('Kullanıcı Yönetimi') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.sessions.index')" :active="request()->routeIs('admin.sessions.*')">
+                            {{ __('Oturumlar') }}
+                        </x-nav-link>
                     @else
                         <x-nav-link :href="route('operator.index')" :active="request()->routeIs('operator.*')">
                             {{ __('Operatör İş Listesi') }}
@@ -91,6 +94,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                     {{ __('Kullanıcı Yönetimi') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.sessions.index')" :active="request()->routeIs('admin.sessions.*')">
+                    {{ __('Oturumlar') }}
                 </x-responsive-nav-link>
             @else
                 <x-responsive-nav-link :href="route('operator.index')" :active="request()->routeIs('operator.*')">
