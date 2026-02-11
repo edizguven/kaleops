@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\OperatorController;
 use App\Models\User;
 
@@ -100,6 +101,15 @@ Route::middleware(['auth', AdminMiddleware::class])
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings/stations', [SettingsController::class, 'updateStations'])->name('settings.update.stations');
         Route::post('/settings/packages', [SettingsController::class, 'updatePackages'])->name('settings.update.packages');
+
+        // 4. Kullanıcı Yönetimi (CRUD + şifre)
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::put('/users/{user}/password', [UserController::class, 'updatePassword'])->name('users.updatePassword');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
 /*
