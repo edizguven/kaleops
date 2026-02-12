@@ -13,6 +13,23 @@
     <div class="py-12 bg-gray-100 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            @if(session('success'))
+                <div class="p-4 bg-green-600 text-white rounded-lg shadow font-bold">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="p-4 bg-red-600 text-white rounded-lg shadow font-bold">{{ session('error') }}</div>
+            @endif
+            @if ($errors->any())
+                <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded shadow">
+                    <p class="font-bold">Düzenleme yapılamadı:</p>
+                    <ul class="list-disc pl-5 mt-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="bg-white p-6 rounded-xl shadow-md border-l-8 {{ $job->is_completed ? 'border-green-500' : 'border-yellow-500' }}">
                 <div class="flex justify-between items-start">
                     <div>
@@ -31,8 +48,59 @@
                             </span>
                         @endif
                         <span class="block text-xs font-bold text-gray-500 mt-2">Adet: {{ $job->quantity ?? 1 }}</span>
+                        @if($job->priority)
+                            <span class="block mt-2"><span class="text-xs font-bold text-gray-400 uppercase">Öncelik:</span> <span class="px-2 py-1 rounded text-xs font-bold {{ $job->priority_color_class }}">{{ $job->priority_label }}</span></span>
+                        @endif
                     </div>
                 </div>
+                @if($job->description)
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <span class="block text-xs font-bold text-gray-400 uppercase mb-1">Açıklama</span>
+                        <p class="text-gray-700 whitespace-pre-wrap">{{ $job->description }}</p>
+                    </div>
+                @endif
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-md border-2 border-amber-200">
+                <h4 class="font-bold text-gray-700 border-b pb-2 mb-4">✏️ İş Emri Düzenle</h4>
+                <p class="text-sm text-gray-600 mb-4">Başlık, açıklama, adet veya öncelikte hata yaptıysanız aşağıdan düzeltebilirsiniz.</p>
+                <form action="{{ route('admin.jobs.update', $job) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">Başlık</label>
+                            <input type="text" name="title" value="{{ old('title', $job->title) }}" required
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">Adet</label>
+                            <input type="number" name="quantity" value="{{ old('quantity', $job->quantity ?? 1) }}" min="1" max="999999" required
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-gray-700 font-bold mb-2">Açıklama (opsiyonel, en fazla 150 karakter)</label>
+                        <textarea name="description" rows="3" maxlength="150" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                                  placeholder="İş detayları">{{ old('description', $job->description) }}</textarea>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-gray-700 font-bold mb-2">Öncelik</label>
+                        <select name="priority" class="w-full max-w-xs p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">— Seçin —</option>
+                            <option value="dusuk" {{ old('priority', $job->priority) === 'dusuk' ? 'selected' : '' }}>Düşük</option>
+                            <option value="orta" {{ old('priority', $job->priority) === 'orta' ? 'selected' : '' }}>Orta</option>
+                            <option value="yuksek" {{ old('priority', $job->priority) === 'yuksek' ? 'selected' : '' }}>Yüksek</option>
+                            <option value="acil" {{ old('priority', $job->priority) === 'acil' ? 'selected' : '' }}>Acil</option>
+                            <option value="cok_acil" {{ old('priority', $job->priority) === 'cok_acil' ? 'selected' : '' }}>Çok Acil</option>
+                        </select>
+                    </div>
+                    <div class="mt-6">
+                        <button type="submit" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition">
+                            Düzenle ve Kaydet
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-md">

@@ -73,6 +73,41 @@ endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
 
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-bold mb-2">AÇIKLAMA (opsiyonel, en fazla 150 karakter)</label>
+                        <textarea name="description" rows="3" maxlength="150" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="İş detayları. En fazla 150 karakter."><?php echo e(old('description')); ?></textarea>
+                        <p class="text-xs text-gray-500 mt-1">En fazla 150 harf.</p>
+                        <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-red-500 text-sm font-bold"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-bold mb-2">ÖNCELİK</label>
+                        <select name="priority" class="w-full max-w-xs p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">— Seçin —</option>
+                            <option value="dusuk" <?php echo e(old('priority') === 'dusuk' ? 'selected' : ''); ?>>Düşük</option>
+                            <option value="orta" <?php echo e(old('priority') === 'orta' ? 'selected' : ''); ?>>Orta</option>
+                            <option value="yuksek" <?php echo e(old('priority') === 'yuksek' ? 'selected' : ''); ?>>Yüksek</option>
+                            <option value="acil" <?php echo e(old('priority') === 'acil' ? 'selected' : ''); ?>>Acil</option>
+                            <option value="cok_acil" <?php echo e(old('priority') === 'cok_acil' ? 'selected' : ''); ?>>Çok Acil</option>
+                        </select>
+                        <?php $__errorArgs = ['priority'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-red-500 text-sm font-bold"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+
                     <?php if($showAssignStations ?? false): ?>
                     <div class="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
                         <label class="block text-gray-800 font-bold mb-3">BU İŞTE SÜRE GİRECEK İSTASYONLAR</label>
@@ -201,20 +236,28 @@ unset($__errorArgs, $__bag); ?>
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 border-b pb-4">
                     <h3 class="font-bold text-gray-700">Mevcut İşler Listesi (toplam <?php echo e($jobs->total()); ?> kayıt)</h3>
                     <div class="flex flex-wrap items-center gap-3 flex-1 sm:justify-end">
-                        <form action="<?php echo e(route('admin.jobs.index')); ?>" method="get" class="flex items-center gap-2 flex-1 sm:max-w-xs">
+                        <form action="<?php echo e(route('admin.jobs.index')); ?>" method="get" class="flex flex-wrap items-center gap-2 flex-1">
+                            <input type="search" name="q" value="<?php echo e(request('q')); ?>" placeholder="İş No veya Başlık ile ara..." 
+                                   class="rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-40">
+                            <input type="date" name="date_from" value="<?php echo e(request('date_from')); ?>" class="rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" title="Başlangıç tarihi">
+                            <input type="date" name="date_to" value="<?php echo e(request('date_to')); ?>" class="rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" title="Bitiş tarihi">
                             <?php if(request('per_page')): ?>
                                 <input type="hidden" name="per_page" value="<?php echo e(request('per_page')); ?>">
                             <?php endif; ?>
-                            <input type="search" name="q" value="<?php echo e(request('q')); ?>" placeholder="İş No veya Başlık ile ara..." 
-                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                             <button type="submit" class="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm transition">Ara</button>
                         </form>
-                        <?php if(request('q')): ?>
-                            <a href="<?php echo e(route('admin.jobs.index', ['per_page' => request('per_page', 25)])); ?>" class="shrink-0 px-3 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium">Arama temizle</a>
+                        <?php if(request('q') || request('date_from') || request('date_to')): ?>
+                            <a href="<?php echo e(route('admin.jobs.index', ['per_page' => request('per_page', 25)])); ?>" class="shrink-0 px-3 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium">Filtreleri temizle</a>
                         <?php endif; ?>
                         <form action="<?php echo e(route('admin.jobs.index')); ?>" method="get" class="flex items-center gap-2" id="per-page-form">
                             <?php if(request('q')): ?>
                                 <input type="hidden" name="q" value="<?php echo e(request('q')); ?>">
+                            <?php endif; ?>
+                            <?php if(request('date_from')): ?>
+                                <input type="hidden" name="date_from" value="<?php echo e(request('date_from')); ?>">
+                            <?php endif; ?>
+                            <?php if(request('date_to')): ?>
+                                <input type="hidden" name="date_to" value="<?php echo e(request('date_to')); ?>">
                             <?php endif; ?>
                             <label for="per_page" class="text-sm font-medium text-gray-700 whitespace-nowrap">Sayfa başına:</label>
                             <select name="per_page" id="per_page" class="rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" onchange="this.form.submit()">
@@ -228,8 +271,10 @@ unset($__errorArgs, $__bag); ?>
                 <table class="w-full text-left">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 text-sm uppercase">
+                            <th class="p-4">Öncelik</th>
                             <th class="p-4">İş No</th>
                             <th class="p-4">Başlık</th>
+                            <th class="p-4">Oluşturulma / Açıklama</th>
                             <th class="p-4">Adet</th>
                             <th class="p-4">Dosyalar</th>
                             <th class="p-4">Durum</th>
@@ -238,8 +283,21 @@ unset($__errorArgs, $__bag); ?>
                     <tbody>
                         <?php $__empty_1 = true; $__currentLoopData = $jobs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $job): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                             <tr class="border-b hover:bg-gray-50 transition">
+                                <td class="p-4">
+                                    <?php if($job->priority): ?>
+                                        <span class="<?php echo e($job->priority_badge_class); ?> <?php if(in_array($job->priority, ['acil', 'cok_acil'])): ?> priority-blink <?php endif; ?>"><?php echo e($job->priority_label); ?></span>
+                                    <?php else: ?>
+                                        <span class="text-gray-400 text-xs">—</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="p-4 text-indigo-600 font-bold font-mono"><?php echo e($job->job_no); ?></td>
                                 <td class="p-4 font-medium"><?php echo e($job->title); ?></td>
+                                <td class="p-4 text-sm max-w-xs">
+                                    <span class="block whitespace-nowrap text-gray-700"><?php echo e($job->created_at ? $job->created_at->format('d.m.Y H:i') : '—'); ?></span>
+                                    <?php if($job->description): ?>
+                                        <span class="block text-gray-600 mt-1 truncate" title="<?php echo e($job->description); ?>"><?php echo e(Str::limit($job->description, 45)); ?></span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="p-4 font-medium"><?php echo e($job->quantity ?? 1); ?></td>
                                 <td class="p-4">
                                     <?php $__empty_2 = true; $__currentLoopData = $job->jobFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $f): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_2 = false; ?>
@@ -261,11 +319,11 @@ unset($__errorArgs, $__bag); ?>
                                     </a>
                                 </td>
                             </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                            <tr>
-                                <td colspan="6" class="p-8 text-center text-gray-500 bg-gray-50 rounded italic">Henüz aktif bir iş emri bulunmuyor.<?php echo e(request('q') ? ' Arama kriterine uygun kayıt yok.' : ''); ?></td>
-                            </tr>
-                        <?php endif; ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                <tr>
+                                    <td colspan="8" class="p-8 text-center text-gray-500 bg-gray-50 rounded italic">Henüz aktif bir iş emri bulunmuyor.<?php echo e(request('q') || request('date_from') || request('date_to') ? ' Filtre kriterine uygun kayıt yok.' : ''); ?></td>
+                                </tr>
+                            <?php endif; ?>
                     </tbody>
                 </table>
                 <?php if($jobs->hasPages()): ?>
@@ -283,6 +341,15 @@ unset($__errorArgs, $__bag); ?>
 
         </div>
     </div>
+    <style>
+        @keyframes priority-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .priority-blink {
+            animation: priority-blink 1s ease-in-out infinite;
+        }
+    </style>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>

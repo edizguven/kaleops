@@ -24,6 +24,13 @@ class JobController extends Controller
             });
         }
 
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
         $perPage = (int) $request->input('per_page', 25);
         if (!in_array($perPage, [25, 50, 100], true)) {
             $perPage = 25;
@@ -42,6 +49,8 @@ class JobController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1|max:999999',
+            'description' => 'nullable|string|max:150',
+            'priority' => 'nullable|string|in:dusuk,orta,yuksek,acil,cok_acil',
             'teknik_dosya' => 'nullable|array',
             'teknik_dosya.*' => 'file|max:51200',
             'teknik_cizim' => 'nullable|array',
@@ -74,6 +83,8 @@ class JobController extends Controller
             $createData = [
                 'job_no' => $jobNo,
                 'title' => $request->title,
+                'description' => $request->filled('description') ? $request->description : null,
+                'priority' => $request->filled('priority') ? $request->priority : null,
                 'quantity' => (int) $request->quantity,
                 'image_path' => null,
                 'pdf_path' => null,
@@ -169,14 +180,25 @@ class JobController extends Controller
         return response()->download($fullPath, $file->original_name);
     }
 
+    /**
+     * İş emri düzenle: başlık, açıklama, adet, öncelik (Detay/Rapor sayfasından).
+     */
     public function update(Request $request, Job $job)
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:150',
+            'quantity' => 'required|integer|min:1|max:999999',
+            'priority' => 'nullable|string|in:dusuk,orta,yuksek,acil,cok_acil',
         ]);
 
         try {
-            $job->update(['title' => $request->title]);
+            $job->update([
+                'title' => $request->title,
+                'description' => $request->filled('description') ? $request->description : null,
+                'quantity' => (int) $request->quantity,
+                'priority' => $request->filled('priority') ? $request->priority : null,
+            ]);
             return back()->with('success', 'İş emri başarıyla güncellendi.');
         } catch (\Exception $e) {
             return back()->with('error', 'Güncelleme hatası: ' . $e->getMessage());

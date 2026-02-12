@@ -48,6 +48,27 @@
                         @error('quantity') <span class="text-red-500 text-sm font-bold">{{ $message }}</span> @enderror
                     </div>
 
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-bold mb-2">AÇIKLAMA (opsiyonel, en fazla 150 karakter)</label>
+                        <textarea name="description" rows="3" maxlength="150" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="İş detayları. En fazla 150 karakter.">{{ old('description') }}</textarea>
+                        <p class="text-xs text-gray-500 mt-1">En fazla 150 harf.</p>
+                        @error('description') <span class="text-red-500 text-sm font-bold">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-bold mb-2">ÖNCELİK</label>
+                        <select name="priority" class="w-full max-w-xs p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">— Seçin —</option>
+                            <option value="dusuk" {{ old('priority') === 'dusuk' ? 'selected' : '' }}>Düşük</option>
+                            <option value="orta" {{ old('priority') === 'orta' ? 'selected' : '' }}>Orta</option>
+                            <option value="yuksek" {{ old('priority') === 'yuksek' ? 'selected' : '' }}>Yüksek</option>
+                            <option value="acil" {{ old('priority') === 'acil' ? 'selected' : '' }}>Acil</option>
+                            <option value="cok_acil" {{ old('priority') === 'cok_acil' ? 'selected' : '' }}>Çok Acil</option>
+                        </select>
+                        @error('priority') <span class="text-red-500 text-sm font-bold">{{ $message }}</span> @enderror
+                    </div>
+
                     @if($showAssignStations ?? false)
                     <div class="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
                         <label class="block text-gray-800 font-bold mb-3">BU İŞTE SÜRE GİRECEK İSTASYONLAR</label>
@@ -141,20 +162,28 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 border-b pb-4">
                     <h3 class="font-bold text-gray-700">Mevcut İşler Listesi (toplam {{ $jobs->total() }} kayıt)</h3>
                     <div class="flex flex-wrap items-center gap-3 flex-1 sm:justify-end">
-                        <form action="{{ route('admin.jobs.index') }}" method="get" class="flex items-center gap-2 flex-1 sm:max-w-xs">
+                        <form action="{{ route('admin.jobs.index') }}" method="get" class="flex flex-wrap items-center gap-2 flex-1">
+                            <input type="search" name="q" value="{{ request('q') }}" placeholder="İş No veya Başlık ile ara..." 
+                                   class="rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm w-40">
+                            <input type="date" name="date_from" value="{{ request('date_from') }}" class="rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" title="Başlangıç tarihi">
+                            <input type="date" name="date_to" value="{{ request('date_to') }}" class="rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" title="Bitiş tarihi">
                             @if(request('per_page'))
                                 <input type="hidden" name="per_page" value="{{ request('per_page') }}">
                             @endif
-                            <input type="search" name="q" value="{{ request('q') }}" placeholder="İş No veya Başlık ile ara..." 
-                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                             <button type="submit" class="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm transition">Ara</button>
                         </form>
-                        @if(request('q'))
-                            <a href="{{ route('admin.jobs.index', ['per_page' => request('per_page', 25)]) }}" class="shrink-0 px-3 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium">Arama temizle</a>
+                        @if(request('q') || request('date_from') || request('date_to'))
+                            <a href="{{ route('admin.jobs.index', ['per_page' => request('per_page', 25)]) }}" class="shrink-0 px-3 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium">Filtreleri temizle</a>
                         @endif
                         <form action="{{ route('admin.jobs.index') }}" method="get" class="flex items-center gap-2" id="per-page-form">
                             @if(request('q'))
                                 <input type="hidden" name="q" value="{{ request('q') }}">
+                            @endif
+                            @if(request('date_from'))
+                                <input type="hidden" name="date_from" value="{{ request('date_from') }}">
+                            @endif
+                            @if(request('date_to'))
+                                <input type="hidden" name="date_to" value="{{ request('date_to') }}">
                             @endif
                             <label for="per_page" class="text-sm font-medium text-gray-700 whitespace-nowrap">Sayfa başına:</label>
                             <select name="per_page" id="per_page" class="rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" onchange="this.form.submit()">
@@ -168,8 +197,10 @@
                 <table class="w-full text-left">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 text-sm uppercase">
+                            <th class="p-4">Öncelik</th>
                             <th class="p-4">İş No</th>
                             <th class="p-4">Başlık</th>
+                            <th class="p-4">Oluşturulma / Açıklama</th>
                             <th class="p-4">Adet</th>
                             <th class="p-4">Dosyalar</th>
                             <th class="p-4">Durum</th>
@@ -178,8 +209,21 @@
                     <tbody>
                         @forelse($jobs as $job)
                             <tr class="border-b hover:bg-gray-50 transition">
+                                <td class="p-4">
+                                    @if($job->priority)
+                                        <span class="{{ $job->priority_badge_class }} @if(in_array($job->priority, ['acil', 'cok_acil'])) priority-blink @endif">{{ $job->priority_label }}</span>
+                                    @else
+                                        <span class="text-gray-400 text-xs">—</span>
+                                    @endif
+                                </td>
                                 <td class="p-4 text-indigo-600 font-bold font-mono">{{ $job->job_no }}</td>
                                 <td class="p-4 font-medium">{{ $job->title }}</td>
+                                <td class="p-4 text-sm max-w-xs">
+                                    <span class="block whitespace-nowrap text-gray-700">{{ $job->created_at ? $job->created_at->format('d.m.Y H:i') : '—' }}</span>
+                                    @if($job->description)
+                                        <span class="block text-gray-600 mt-1 truncate" title="{{ $job->description }}">{{ Str::limit($job->description, 45) }}</span>
+                                    @endif
+                                </td>
                                 <td class="p-4 font-medium">{{ $job->quantity ?? 1 }}</td>
                                 <td class="p-4">
                                     @forelse($job->jobFiles as $f)
@@ -200,11 +244,11 @@
                                     </a>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="p-8 text-center text-gray-500 bg-gray-50 rounded italic">Henüz aktif bir iş emri bulunmuyor.{{ request('q') ? ' Arama kriterine uygun kayıt yok.' : '' }}</td>
-                            </tr>
-                        @endforelse
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="p-8 text-center text-gray-500 bg-gray-50 rounded italic">Henüz aktif bir iş emri bulunmuyor.{{ request('q') || request('date_from') || request('date_to') ? ' Filtre kriterine uygun kayıt yok.' : '' }}</td>
+                                </tr>
+                            @endforelse
                     </tbody>
                 </table>
                 @if($jobs->hasPages())
@@ -221,4 +265,13 @@
 
         </div>
     </div>
+    <style>
+        @keyframes priority-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .priority-blink {
+            animation: priority-blink 1s ease-in-out infinite;
+        }
+    </style>
 </x-app-layout>

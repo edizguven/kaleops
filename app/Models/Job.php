@@ -11,7 +11,7 @@ class Job extends Model
 
     // Veritabanına toplu veri girişine izin verdiğimiz alanlar
     protected $fillable = [
-        'job_no', 'title', 'quantity', 'image_path', 'pdf_path',
+        'job_no', 'title', 'description', 'priority', 'quantity', 'image_path', 'pdf_path',
         'current_stage',
         'assign_cam', 'assign_lazer', 'assign_cmm', 'assign_tesviye', 'assign_torna',
         'cam_minutes',
@@ -140,6 +140,47 @@ class Job extends Model
              + $this->planning_cost 
              + $this->packaging_cost 
              + $this->logistics_cost;
+    }
+
+    /** Öncelik değerleri → Türkçe etiket */
+    public const PRIORITY_LABELS = [
+        'dusuk' => 'Düşük',
+        'orta' => 'Orta',
+        'yuksek' => 'Yüksek',
+        'acil' => 'Acil',
+        'cok_acil' => 'Çok Acil',
+    ];
+
+    /** Öncelik → Tailwind renk sınıfları (İş No hücresi için) */
+    public function getPriorityColorClassAttribute(): string
+    {
+        return match ($this->priority) {
+            'dusuk' => 'text-gray-600',
+            'orta' => 'text-indigo-600',
+            'yuksek' => 'text-amber-600 font-semibold',
+            'acil' => 'text-red-600 font-bold',
+            'cok_acil' => 'text-red-800 font-black',
+            default => 'text-indigo-600',
+        };
+    }
+
+    /** Öncelik badge (liste hücresi: arka plan + metin + acil/cok_acil için yanıp sönme) */
+    public function getPriorityBadgeClassAttribute(): string
+    {
+        $base = 'inline-block px-2 py-1 rounded text-xs font-bold ';
+        return $base . match ($this->priority) {
+            'dusuk' => 'bg-gray-100 text-gray-700',
+            'orta' => 'bg-indigo-100 text-indigo-800',
+            'yuksek' => 'bg-amber-100 text-amber-800',
+            'acil' => 'bg-red-100 text-red-800',
+            'cok_acil' => 'bg-red-200 text-red-900 font-black',
+            default => 'bg-gray-100 text-gray-500',
+        };
+    }
+
+    public function getPriorityLabelAttribute(): string
+    {
+        return self::PRIORITY_LABELS[$this->priority] ?? '—';
     }
 
     /**

@@ -95,6 +95,7 @@ Route::middleware(['auth', AdminMiddleware::class])
         Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
         Route::post('/jobs', [JobController::class, 'store'])->name('jobs.store');
         Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
+        Route::put('/jobs/{job}', [JobController::class, 'update'])->name('jobs.update');
         Route::post('/jobs/{job}/files', [JobController::class, 'storeFiles'])->name('jobs.files.store');
         Route::delete('/jobs/{job}/files/{file}', [JobController::class, 'destroyFile'])->name('jobs.files.destroy');
 

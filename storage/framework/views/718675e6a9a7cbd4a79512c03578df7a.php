@@ -22,6 +22,23 @@
     <div class="py-12 bg-gray-100 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            <?php if(session('success')): ?>
+                <div class="p-4 bg-green-600 text-white rounded-lg shadow font-bold"><?php echo e(session('success')); ?></div>
+            <?php endif; ?>
+            <?php if(session('error')): ?>
+                <div class="p-4 bg-red-600 text-white rounded-lg shadow font-bold"><?php echo e(session('error')); ?></div>
+            <?php endif; ?>
+            <?php if($errors->any()): ?>
+                <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded shadow">
+                    <p class="font-bold">Düzenleme yapılamadı:</p>
+                    <ul class="list-disc pl-5 mt-1">
+                        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <li><?php echo e($error); ?></li>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
             <div class="bg-white p-6 rounded-xl shadow-md border-l-8 <?php echo e($job->is_completed ? 'border-green-500' : 'border-yellow-500'); ?>">
                 <div class="flex justify-between items-start">
                     <div>
@@ -40,8 +57,59 @@
                             </span>
                         <?php endif; ?>
                         <span class="block text-xs font-bold text-gray-500 mt-2">Adet: <?php echo e($job->quantity ?? 1); ?></span>
+                        <?php if($job->priority): ?>
+                            <span class="block mt-2"><span class="text-xs font-bold text-gray-400 uppercase">Öncelik:</span> <span class="px-2 py-1 rounded text-xs font-bold <?php echo e($job->priority_color_class); ?>"><?php echo e($job->priority_label); ?></span></span>
+                        <?php endif; ?>
                     </div>
                 </div>
+                <?php if($job->description): ?>
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <span class="block text-xs font-bold text-gray-400 uppercase mb-1">Açıklama</span>
+                        <p class="text-gray-700 whitespace-pre-wrap"><?php echo e($job->description); ?></p>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-md border-2 border-amber-200">
+                <h4 class="font-bold text-gray-700 border-b pb-2 mb-4">✏️ İş Emri Düzenle</h4>
+                <p class="text-sm text-gray-600 mb-4">Başlık, açıklama, adet veya öncelikte hata yaptıysanız aşağıdan düzeltebilirsiniz.</p>
+                <form action="<?php echo e(route('admin.jobs.update', $job)); ?>" method="POST">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PUT'); ?>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">Başlık</label>
+                            <input type="text" name="title" value="<?php echo e(old('title', $job->title)); ?>" required
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">Adet</label>
+                            <input type="number" name="quantity" value="<?php echo e(old('quantity', $job->quantity ?? 1)); ?>" min="1" max="999999" required
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-gray-700 font-bold mb-2">Açıklama (opsiyonel, en fazla 150 karakter)</label>
+                        <textarea name="description" rows="3" maxlength="150" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                                  placeholder="İş detayları"><?php echo e(old('description', $job->description)); ?></textarea>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-gray-700 font-bold mb-2">Öncelik</label>
+                        <select name="priority" class="w-full max-w-xs p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">— Seçin —</option>
+                            <option value="dusuk" <?php echo e(old('priority', $job->priority) === 'dusuk' ? 'selected' : ''); ?>>Düşük</option>
+                            <option value="orta" <?php echo e(old('priority', $job->priority) === 'orta' ? 'selected' : ''); ?>>Orta</option>
+                            <option value="yuksek" <?php echo e(old('priority', $job->priority) === 'yuksek' ? 'selected' : ''); ?>>Yüksek</option>
+                            <option value="acil" <?php echo e(old('priority', $job->priority) === 'acil' ? 'selected' : ''); ?>>Acil</option>
+                            <option value="cok_acil" <?php echo e(old('priority', $job->priority) === 'cok_acil' ? 'selected' : ''); ?>>Çok Acil</option>
+                        </select>
+                    </div>
+                    <div class="mt-6">
+                        <button type="submit" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition">
+                            Düzenle ve Kaydet
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-md">

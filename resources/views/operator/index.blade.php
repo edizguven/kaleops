@@ -41,6 +41,9 @@
                                     <h3 class="text-3xl font-black text-gray-800 font-mono">{{ $job->job_no }}</h3>
                                     <p class="text-lg text-gray-600 mt-1 font-medium">{{ $job->title }}</p>
                                     <span class="block text-sm font-bold text-gray-500 mt-1">Adet: {{ $job->quantity ?? 1 }}</span>
+                                    @if($job->description)
+                                        <p class="text-sm text-gray-600 mt-2 p-2 bg-gray-50 rounded border border-gray-100">{{ $job->description }}</p>
+                                    @endif
                                 </div>
                                 <div class="flex flex-wrap gap-2 mt-4 md:mt-0">
                                     @forelse($job->jobFiles as $f)
