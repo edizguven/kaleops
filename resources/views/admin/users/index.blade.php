@@ -68,16 +68,20 @@
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm">{{ optional($u->department)->name ?? '—' }}</td>
                                     <td class="px-4 py-3 whitespace-nowrap text-right text-sm space-x-2">
-                                        <a href="{{ route('admin.users.edit', ['user' => $u->id]) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Düzenle</a>
-                                        <a href="{{ route('admin.users.edit', ['user' => $u->id]) }}#password" class="text-amber-600 hover:text-amber-800 font-medium">Şifre</a>
-                                        @if($u->id !== auth()->id())
-                                            <form action="{{ route('admin.users.destroy', ['user' => $u->id]) }}" method="post" class="inline" onsubmit="return confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Sil</button>
-                                            </form>
+                                        @if(!empty($u->id))
+                                            <a href="{{ route('admin.users.edit', ['user' => $u->id]) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Düzenle</a>
+                                            <a href="{{ route('admin.users.edit', ['user' => $u->id]) }}#password" class="text-amber-600 hover:text-amber-800 font-medium">Şifre</a>
+                                            @if($u->id !== auth()->id())
+                                                <form action="{{ route('admin.users.destroy', ['user' => $u->id]) }}" method="post" class="inline" onsubmit="return confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Sil</button>
+                                                </form>
+                                            @else
+                                                <span class="text-gray-400">(siz)</span>
+                                            @endif
                                         @else
-                                            <span class="text-gray-400">(siz)</span>
+                                            <span class="text-gray-400">—</span>
                                         @endif
                                     </td>
                                 </tr>
