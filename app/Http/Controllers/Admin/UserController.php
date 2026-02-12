@@ -81,6 +81,9 @@ class UserController extends Controller
         ]);
 
         unset($validated['password_confirmation']);
+        $validated['department_id'] = $request->filled('department_id') ? (int) $request->department_id : null;
+        $validated['usertype'] = $validated['role']; // canlıda usertype NULL kalmasın diye
+
         User::create($validated); // password model'de 'hashed' cast ile hash'lenir
 
         return redirect()->route('admin.users.index')->with('success', 'Kullanıcı başarıyla eklendi.');
